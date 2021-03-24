@@ -22,9 +22,10 @@ class pdf:
         This function set up font and his size in file\n
         :param font_size: size of font
         """
+        self.font_size = font_size
         using_font = ttfonts.TTFont("Calibri", "Calibri.ttf")
         pdfmetrics.registerFont(using_font)
-        self.file.setFont("Calibri", font_size)
+        self.file.setFont("Calibri", self.font_size)
 
     def write_text(self, text: str, position: str = "mid", x: float = 297.635, y: float = 815.89):
         """"
@@ -72,7 +73,9 @@ class pdf:
                 [4, "random_drawing", 23]]
         """
         table = Table(data=data,
-                      style=[("INNERGRID", (0, 0), (-1, -1), 1, "Black"), ("BOX", (0, 0), (-1, -1), 1, "Black")])
+                      style=[("INNERGRID", (0, 0), (-1, -1), 1, "Black"),
+                             ("FONT", (0, 0), (0, 0), "Calibri", self.font_size),
+                             ("BOX", (0, 0), (-1, -1), 1, "Black")])
         table.wrapOn(self.file, 10, 10)
         table.drawOn(self.file, 10, 10)
 
