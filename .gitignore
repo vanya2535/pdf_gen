@@ -3,3 +3,4 @@ venv/
 build/
 dist/
 pdf_gen.egg-info/
+generated.pdf

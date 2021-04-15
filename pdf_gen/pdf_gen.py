@@ -16,6 +16,7 @@ class pdf:
             path = path[0:path.rfind('/') + 1:1]
         path += "generated.pdf"
         self.file = Canvas(path)
+        self.set_font(12)
 
     def set_font(self, font_size: int):
         """
@@ -48,38 +49,59 @@ class pdf:
         :param fg_count: count of figures, drawn on page
         """
         for figure in range(fg_count):
-            methods = [self.file.bezier(randint(150, 495), randint(150, 741), randint(150, 495), randint(150, 741),
-                                        randint(150, 495), randint(150, 741), randint(150, 495), randint(150, 741)),
-                       self.file.arc(randint(100, 495), randint(100, 741), randint(100, 495), randint(100, 741)),
-                       self.file.rect(randint(100, 395), randint(100, 641), randint(1, 100), randint(1, 100),
-                                      fill=randint(0, 1)),
-                       self.file.ellipse(randint(100, 495), randint(100, 741), randint(100, 495), randint(100, 741),
-                                         fill=randint(0, 1)),
-                       self.file.circle(randint(100, 395), randint(100, 641), randint(1, 100), fill=randint(0, 1)),
-                       self.file.roundRect(randint(100, 395), randint(100, 641), randint(1, 100), randint(1, 100),
-                                           randint(1, 100), fill=randint(0, 1))]
+            methods = [
+                self.file.bezier(randint(150, 495), randint(150, 741), randint(150, 495), randint(150, 741),
+                                 randint(150, 495), randint(150, 741), randint(150, 495), randint(150, 741)),
+                self.file.arc(randint(100, 495), randint(100, 741), randint(100, 495), randint(100, 741)),
+                self.file.rect(randint(100, 395), randint(100, 641), randint(1, 100), randint(1, 100),
+                               fill=randint(0, 1)),
+                self.file.ellipse(randint(100, 495), randint(100, 741), randint(100, 495), randint(100, 741),
+                                  fill=randint(0, 1)),
+                self.file.circle(randint(100, 395), randint(100, 641), randint(1, 100), fill=randint(0, 1)),
+                self.file.roundRect(randint(100, 395), randint(100, 641), randint(1, 100), randint(1, 100),
+                                    randint(1, 100), fill=randint(0, 1))
+            ]
             self.file.setFillColorRGB(uniform(0, 1), uniform(0, 1), uniform(0, 1), alpha=uniform(0, 1))
             self.file.setStrokeColorRGB(uniform(0, 1), uniform(0, 1), uniform(0, 1), alpha=uniform(0, 1))
             choice(methods)
 
-    def draw_table(self, data: list):
+    def draw_table(self, data: dict):
         """
-        This function draws random table\n
-        :param data: list with data for table, e.g.
-                [[" ", "function", "count of strings"],
-                [1, "get_path", 10],
-                [2, "create_file", 8],
-                [3, "set_font", 10],
-                [4, "random_drawing", 23]]
+        This function draws table from your list of dictionaries with data\n
+        :param data: dictionary with data, e.g.
+        {
+            'title': 'Table title',
+            'columns': [
+                {'name': 'Name', 'value': 'name'},
+                {'name': 'Age', 'value': 'age'}
+            ],
+            'rows': [
+                {'name': 'string1', 'age': 23},
+                {'name': 'string2', 'age': 43}
+            ]
+        }
         """
-        table = Table(data=data,
-                      style=[("INNERGRID", (0, 0), (-1, -1), 1, "Black"),
-                             ("FONT", (0, 0), (0, 0), "Calibri", self.font_size),
+        format_data = [[data['title']]]
+        add_list = []
+        value_list = []
+        for id in range(len(data['columns'])):
+            add_list.append(data['columns'][id]['name'])
+            value_list.append(data['columns'][id]['value'])
+        format_data.append(add_list.copy())
+        add_list.clear()
+        for id in range(len(data['rows'])):
+            for idv in range(len(value_list)):
+                add_list.append(data['rows'][id][value_list[idv]])
+            format_data.append(add_list.copy())
+            add_list.clear()
+        table = Table(data=format_data,
+                      style=[("GRID", (0, 1), (-1, -1), 1, "Black"),
+                             ("FONT", (0, 0), (-1, -1), "Calibri", self.font_size),
                              ("BOX", (0, 0), (-1, -1), 1, "Black")])
         table.wrapOn(self.file, 10, 10)
         table.drawOn(self.file, 10, 10)
 
-    def save(self, author: str, title: str):
+    def save(self, author: str = 'pdf_gen', title: str = 'GENERATED'):
         """
         This function saves our file\n
         :param author: author of file
