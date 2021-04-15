@@ -84,14 +84,14 @@ class pdf:
         format_data = [[data['title']]]
         add_list = []
         value_list = []
-        for id in range(len(data['columns'])):
-            add_list.append(data['columns'][id]['name'])
-            value_list.append(data['columns'][id]['value'])
+        for column_elem in data['columns']:
+            add_list.append(column_elem['name'])
+            value_list.append(column_elem['value'])
         format_data.append(add_list.copy())
         add_list.clear()
-        for id in range(len(data['rows'])):
-            for idv in range(len(value_list)):
-                add_list.append(data['rows'][id][value_list[idv]])
+        for row_elem in data['rows']:
+            for value in value_list:
+                add_list.append(row_elem[value])
             format_data.append(add_list.copy())
             add_list.clear()
         table = Table(data=format_data,
