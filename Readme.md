@@ -26,7 +26,7 @@ my_file.write_text() # text - string of text to writing, position - left/mid/rig
 #x and y - coordinates of string
 my_file.save(author, title) # author - author of file, title - title of file
 ```
-##Example
+## Example
 ```python
 from pdf_gen.pdf_gen import pdf
 
