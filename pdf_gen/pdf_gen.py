@@ -6,15 +6,22 @@ from random import uniform, randint, choice
 
 class pdf:
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, name: str = 'generated'):
         """
         Create a pdf-file object\n
         :param path: path to create file
+        :param name: name of file
         """
-        self.file = Canvas(self._get_path(path))
+        self.file = Canvas(self._get_path(path, name))
         self.set_font(12)
 
     def _get_path(self, path: str, name: str = 'generated'):
+        """
+        This function cleans path
+        :param path: path to create file
+        :param name: name of file
+        :return: clean path to file
+        """
         path = ''.join(symbol for symbol in path.lower() if symbol not in ' <>?"\*')
         while path.count(':') > 1:
             path = path[:path.rfind(':')] + path[path.rfind(':') + 1:]
