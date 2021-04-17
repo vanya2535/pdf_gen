@@ -5,18 +5,28 @@ from random import uniform, randint, choice
 
 
 class pdf:
+
     def __init__(self, path: str):
         """
         Create a pdf-file object\n
         :param path: path to create file
         """
-        if path[len(path) - 1] != '/' and ".pdf" not in path:
-            path += '/'
-        elif ".pdf" in path:
-            path = path[0:path.rfind('/') + 1:1]
-        path += "generated.pdf"
-        self.file = Canvas(path)
+        self.file = Canvas(self._get_path(path))
         self.set_font(12)
+
+    def _get_path(self, path: str, name: str = 'generated'):
+        path = ''.join(symbol for symbol in path.lower() if symbol not in ' <>?"\*')
+        while path.count(':') > 1:
+            path = path[:path.rfind(':')] + path[path.rfind(':') + 1:]
+        while path[len(path) - 1] == ' ':
+            path = path[:len(path) - 1]
+        if ".pdf" in path:
+            path = path[0:path.rfind('/') + 1:1]
+        if path[len(path) - 1] != '/':
+            path += '/'
+        if '.pdf' in name:
+            name = name[:name.rfind('.')]
+        return path + name + '.pdf'
 
     def set_font(self, font_size: int):
         """
@@ -65,9 +75,30 @@ class pdf:
             self.file.setStrokeColorRGB(uniform(0, 1), uniform(0, 1), uniform(0, 1), alpha=uniform(0, 1))
             choice(methods)
 
+    def _format_data(self, data: dict):
+        """
+        This function processing data and return list of data for create table\n
+        :param data: dict of data
+        :return: list of data
+        """
+        new_data = [[data['title']]]
+        add_list = []
+        value_list = []
+        for column_elem in data['columns']:
+            add_list.append(column_elem['name'])
+            value_list.append(column_elem['value'])
+        new_data.append(add_list.copy())
+        add_list.clear()
+        for row_elem in data['rows']:
+            for value in value_list:
+                add_list.append(row_elem[value])
+            new_data.append(add_list.copy())
+            add_list.clear()
+        return new_data
+
     def draw_table(self, data: dict):
         """
-        This function draws table from your list of dictionaries with data\n
+        This function draws table from your dictionary of data\n
         :param data: dictionary with data, e.g.
         {
             'title': 'Table title',
@@ -81,20 +112,8 @@ class pdf:
             ]
         }
         """
-        format_data = [[data['title']]]
-        add_list = []
-        value_list = []
-        for column_elem in data['columns']:
-            add_list.append(column_elem['name'])
-            value_list.append(column_elem['value'])
-        format_data.append(add_list.copy())
-        add_list.clear()
-        for row_elem in data['rows']:
-            for value in value_list:
-                add_list.append(row_elem[value])
-            format_data.append(add_list.copy())
-            add_list.clear()
-        table = Table(data=format_data,
+        data = self._format_data(data)
+        table = Table(data=data,
                       style=[("GRID", (0, 1), (-1, -1), 1, "Black"),
                              ("FONT", (0, 0), (-1, -1), "Calibri", self.font_size),
                              ("BOX", (0, 0), (-1, -1), 1, "Black")])
