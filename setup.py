@@ -17,5 +17,5 @@ setuptools.setup(
     install_requires='reportlab >= 3.5.65',
     test_suite='tests',
     python_requires='>=3.7',
-    platforms=["any"]
+    platforms=["windows"]
 )
