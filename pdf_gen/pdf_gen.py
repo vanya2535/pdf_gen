@@ -1,6 +1,7 @@
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.pdfbase import ttfonts, pdfmetrics
 from reportlab.platypus import Table
+from reportlab.platypus.flowables import Image
 from random import uniform, randint, choice
 from PyPDF2 import PdfFileMerger
 import os
@@ -16,6 +17,7 @@ class pdf:
         """
         self.file = Canvas(self._get_path(path, name))
         self.set_font(12)
+        self.page = 1
 
     def _get_path(self, path: str, name: str = 'generated') -> str:
         """
@@ -37,6 +39,31 @@ class pdf:
             name = name[:name.rfind('.')]
         return path + name + '.pdf'
 
+    def _format_data(self, data: dict) -> list:
+        """
+        This function processing data and return list of data for create table\n
+        :param data: dict of data
+        :return: list of data
+        """
+        new_data = [[data['title']]]
+        add_list = []
+        value_list = []
+        for column_elem in data['columns']:
+            add_list.append(column_elem['name'])
+            value_list.append(column_elem['value'])
+        new_data.append(add_list.copy())
+        add_list.clear()
+        for row_elem in data['rows']:
+            for value in value_list:
+                add_list.append(row_elem[value])
+            new_data.append(add_list.copy())
+            add_list.clear()
+        return new_data
+
+    def _normal_color(self):
+        self.file.setFillColor('black')
+        self.file.setStrokeColor('black')
+
     def set_font(self, font_size: int):
         """
         This function set up font and his size in file\n
@@ -47,14 +74,15 @@ class pdf:
         pdfmetrics.registerFont(using_font)
         self.file.setFont("Calibri", self.font_size)
 
-    def write_text(self, text: str, position: str = "mid", x: float = 297.635, y: float = 815.89):
+    def write_text(self, text: str, position: str = "mid", x: int = 297, y: int = 815):
         """"
         This function write text on defined position\n
-        size of page is 595.27,841.89
+        size of page is 595,841\n
         :param text: string of text to writing
         :param position: left/mid/right position of string of text
         :param x, y: coordinates of string
         """
+        self._normal_color()
         if position == "left":
             self.file.drawString(x, y, text)
         elif position == "mid":
@@ -84,31 +112,12 @@ class pdf:
             self.file.setStrokeColorRGB(uniform(0, 1), uniform(0, 1), uniform(0, 1), alpha=uniform(0, 1))
             choice(methods)
 
-    def _format_data(self, data: dict) -> list:
-        """
-        This function processing data and return list of data for create table\n
-        :param data: dict of data
-        :return: list of data
-        """
-        new_data = [[data['title']]]
-        add_list = []
-        value_list = []
-        for column_elem in data['columns']:
-            add_list.append(column_elem['name'])
-            value_list.append(column_elem['value'])
-        new_data.append(add_list.copy())
-        add_list.clear()
-        for row_elem in data['rows']:
-            for value in value_list:
-                add_list.append(row_elem[value])
-            new_data.append(add_list.copy())
-            add_list.clear()
-        return new_data
-
-    def draw_table(self, data: dict):
+    def draw_table(self, data: dict, x: int = 10, y: int = 10):
         """
         This function draws table from your dictionary of data\n
+        size of page is 595.27,841.89\n
         :param data: dictionary with data, e.g.
+        :param x, y: coordinates of left-bottom corner of table
         {
             'title': 'Table title',
             'columns': [
@@ -121,13 +130,34 @@ class pdf:
             ]
         }
         """
+        self._normal_color()
         data = self._format_data(data)
         table = Table(data=data,
                       style=[("GRID", (0, 1), (-1, -1), 1, "Black"),
                              ("FONT", (0, 0), (-1, -1), "Calibri", self.font_size),
                              ("BOX", (0, 0), (-1, -1), 1, "Black")])
         table.wrapOn(self.file, 10, 10)
-        table.drawOn(self.file, 10, 10)
+        table.drawOn(self.file, x, y)
+
+    def insert_image(self, path: str, x: int = 100, y: int = 200, width: int = None, height: int = None):
+        """
+        This function inserts image in pdf-file\n
+        size of page is 595.27,841.89\n
+        :param path: path to image
+        :param x, y: coordinates of left-bottom corner of image
+        :param width, height: sizes of image
+        """
+        image = Image(path, width, height)
+        image.drawOn(self.file, x, y)
+
+    def next_page(self):
+        """
+        This function turns the page\n
+        """
+        self._normal_color()
+        self.file.drawString(565, 30, str(self.page))
+        self.page += 1
+        self.file.showPage()
 
     def save(self, author: str = 'pdf_gen', title: str = 'GENERATED'):
         """
@@ -135,6 +165,8 @@ class pdf:
         :param author: author of file
         :param title: title of file
         """
+        self._normal_color()
+        self.file.drawString(565, 30, str(self.page))
         self.file.setAuthor(author)
         self.file.setTitle(title)
         self.file.save()

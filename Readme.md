@@ -9,6 +9,7 @@ from pdf_gen.pdf_gen import pdf
 
 my_file = pdf(path, name) # path - path to your file, name - name of file
 my_file.random_drawing(count) # count - count of drawings
+my_file.next_page() # turns the page
 my_file.set_font(size) # size - size of font
 data = {
             'title': 'Table title',
@@ -21,9 +22,13 @@ data = {
                 {'x': 5, 'y': 10}
             ]
 }
-my_file.draw_table(data) # data - dict with data
-my_file.write_text() # text - string of text to writing, position - left/mid/right position of string of text, 
-#x and y - coordinates of string
+my_file.draw_table(data, x, y) # data - dict with data
+#  x and y - coordinates of left-bottom corner of table
+my_file.write_text(text, position, x, y) # text - string of text to writing, position - left/mid/right position 
+#  of string of text, x and y - coordinates of string
+my_file.insert_image(path, x, y, width, height) # path - path to image,
+#  x and y - coordinates of left-bottom corner of image
+# width and height - sizes of image
 my_file.save(author, title) # author - author of file, title - title of file
 ```
 ## Example
@@ -32,6 +37,7 @@ from pdf_gen.pdf_gen import pdf
 
 file = pdf('c:/projects/pdf_generator/tests', 'compare')
 file.write_text('Testing file', 'right', 350, 800)
+file.next_page()
 data = {
             'title': 'Table title',
             'columns': [
@@ -44,6 +50,7 @@ data = {
             ]
         }
 file.draw_table(data)
+file.next_page()
 file.random_drawing(10)
 file.save() 
 ```
