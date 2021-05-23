@@ -5,4 +5,3 @@ dist/
 pdf_gen.egg-info/
 generated.pdf
 exp.py
-compare.pdf

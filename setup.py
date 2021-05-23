@@ -14,8 +14,9 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://github.com/vanya2535/pdf_gen',
     packages=setuptools.find_packages(),
-    install_requires='reportlab >= 3.5.65',
+    install_requires=['reportlab >= 3.5.65',
+                      'PyPDF2 >= 1.26.0'],
     test_suite='tests',
     python_requires='>=3.7',
-    platforms=["windows"]
+    platforms=["any"]
 )

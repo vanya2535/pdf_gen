@@ -2,6 +2,8 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.pdfbase import ttfonts, pdfmetrics
 from reportlab.platypus import Table
 from random import uniform, randint, choice
+from PyPDF2 import PdfFileMerger
+import os
 
 
 class pdf:
@@ -15,9 +17,9 @@ class pdf:
         self.file = Canvas(self._get_path(path, name))
         self.set_font(12)
 
-    def _get_path(self, path: str, name: str = 'generated'):
+    def _get_path(self, path: str, name: str = 'generated') -> str:
         """
-        This function cleans path
+        This function cleans path\n
         :param path: path to create file
         :param name: name of file
         :return: clean path to file
@@ -82,7 +84,7 @@ class pdf:
             self.file.setStrokeColorRGB(uniform(0, 1), uniform(0, 1), uniform(0, 1), alpha=uniform(0, 1))
             choice(methods)
 
-    def _format_data(self, data: dict):
+    def _format_data(self, data: dict) -> list:
         """
         This function processing data and return list of data for create table\n
         :param data: dict of data
@@ -136,3 +138,27 @@ class pdf:
         self.file.setAuthor(author)
         self.file.setTitle(title)
         self.file.save()
+
+
+def merge_pdf(source_paths: list, result_path: str, source_del: bool = False):
+    """
+    This function merges some files into one\n
+    You can create some pages via "pdf" class and merge it into one pdf-file\n
+    :param source_paths: paths to source files, e.g. ['c:/files/file1.pdf', 'c:/files/file2.pdf']
+    :param result_path: path to result file
+    :param source_del: if it`s True, function deletes source files, else not
+    """
+    merger = PdfFileMerger()
+    opened = []
+    for path in source_paths:
+        file = open(path, 'rb')
+        merger.append(fileobj=file)
+        opened.append(file)
+    result = open(result_path, 'wb')
+    merger.write(result)
+    result.close()
+    for file in opened:
+        file.close()
+    if source_del:
+        for path in source_paths:
+            os.remove(path)

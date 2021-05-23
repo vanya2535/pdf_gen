@@ -1,6 +1,6 @@
 import unittest
 import os
-from pdf_gen.pdf_gen import pdf
+from pdf_gen.pdf_gen import pdf, merge_pdf
 
 
 def pathCheck(path: str):
@@ -24,7 +24,15 @@ def fileCompare(example_path: str, compare_path: str):
             return True
 
 
-class pdfTest(unittest.TestCase):
+def create_temp_files(path: str):
+    file_names = ['mg1', 'mg2', 'mg3', 'mg4']
+    for file_name in file_names:
+        page = pdf(path, f'{file_name}.pdf')
+        page.write_text(file_name + ' merge_test')
+        page.save()
+
+
+class pdf_test(unittest.TestCase):
 
     def test_get_path(self):
         paths = ['c:/path', 'c::/path', 'C:/path/pdf.p\df', 'c:/path/pd>f.pdf.pdf.gen', 'c: /path/ ']
@@ -90,7 +98,7 @@ class pdfTest(unittest.TestCase):
                 os.remove(testing._get_path(path, name))
 
     def test_table_text(self):
-        file = pdf('c:/projects/pdf_generator/tests', 'compare')
+        file = pdf('c:/projects/pdf_generator/tests/test_files/', 'compare')
         file.write_text('Testing file', 'right', 350, 800)
         data = {
             'title': 'Table title',
@@ -105,5 +113,36 @@ class pdfTest(unittest.TestCase):
         }
         file.draw_table(data)
         file.save()
-        self.assertTrue(fileCompare('c:/projects/pdf_generator/tests/compare.pdf',
-                                    'c:/projects/pdf_generator/tests/test.pdf'))
+        self.assertTrue(fileCompare('c:/projects/pdf_generator/tests/test_files/compare.pdf',
+                                    'c:/projects/pdf_generator/tests/test_files/test.pdf'))
+        os.remove('c:/projects/pdf_generator/tests/test_files/compare.pdf')
+
+
+class merger_test(unittest.TestCase):
+
+    def test_wo_del(self):
+        paths = ['c:/projects/pdf_generator/tests/test_files/mg1.pdf',
+                 'c:/projects/pdf_generator/tests/test_files/mg2.pdf',
+                 'c:/projects/pdf_generator/tests/test_files/mg3.pdf',
+                 'c:/projects/pdf_generator/tests/test_files/mg4.pdf']
+        result = 'c:/projects/pdf_generator/tests/test_files/mg_result.pdf'
+        compare = 'c:/projects/pdf_generator/tests/test_files/mg_compare.pdf'
+        merge_pdf(paths, result)
+        self.assertTrue(fileCompare(result, compare))
+        os.remove(result)
+        for file in paths:
+            self.assertTrue(os.path.exists(file))
+
+    def test_del(self):
+        paths = ['c:/projects/pdf_generator/path/mg1.pdf',
+                 'c:/projects/pdf_generator/path/mg2.pdf',
+                 'c:/projects/pdf_generator/path/mg3.pdf',
+                 'c:/projects/pdf_generator/path/mg4.pdf']
+        create_temp_files('c:/projects/pdf_generator/path')
+        result = 'c:/projects/pdf_generator/path/mg_result.pdf'
+        compare = 'c:/projects/pdf_generator/tests/test_files/mg_compare.pdf'
+        merge_pdf(paths, result, True)
+        self.assertTrue(fileCompare(result, compare))
+        os.remove(result)
+        for file in paths:
+            self.assertFalse(os.path.exists(file))

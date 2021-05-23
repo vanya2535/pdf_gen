@@ -1,4 +1,4 @@
-# Pdf_gen guide
+#Pdf_gen guide
 
 ## Installing
 pip3 install pdf_gen
@@ -26,7 +26,7 @@ my_file.write_text() # text - string of text to writing, position - left/mid/rig
 #x and y - coordinates of string
 my_file.save(author, title) # author - author of file, title - title of file
 ```
-## Example
+##Example
 ```python
 from pdf_gen.pdf_gen import pdf
 
@@ -47,4 +47,17 @@ file.draw_table(data)
 file.random_drawing(10)
 file.save() 
 ```
-![](https://imgshare.ru/image/result.Eb7l)
+##You can create some pdf and merge it into one
+```python
+from pdf_gen.pdf_gen import pdf, merge_pdf
+
+file_names = ['first', 'second', 'third', 'fourth']
+paths = []
+for file_name in file_names:
+    page = pdf('/files/', f'{file_name}.pdf')
+    paths.append(f'/files/{file_name}.pdf')
+    page.write_text(file_name)
+    page.random_drawing(10)
+    page.save()
+merge_pdf(paths, '/files/res.pdf', True)
+```
