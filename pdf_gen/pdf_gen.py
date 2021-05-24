@@ -86,7 +86,7 @@ class pdf:
         if position == "left":
             self.file.drawString(x, y, text)
         elif position == "mid":
-            self.file.drawString(x, y, text)
+            self.file.drawCentredString(x, y, text)
         elif position == "right":
             self.file.drawRightString(x, y, text)
 
